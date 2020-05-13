@@ -69,13 +69,17 @@ uintptr_t GetModuleSize(DWORD procId, const wchar_t* modName) {
 
 int main() {
 
+    // Get PID, moduleBase and moduleSize
     DWORD procId = GetProcId(L"x.exe");
     uintptr_t moduleBase = GetModuleBaseAddress(procId, L"x.exe");
     uintptr_t moduleSize = GetModuleSize(procId, L"x.exe");
 
+    // Require all access
     HANDLE hProcess = 0;
     hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, procId);
 
+
+    // Set base and last address and print them for user
     uintptr_t dynamicPtrBaseAddr = moduleBase;
     uintptr_t dynamicPtrLastAddr = 2*(moduleBase + moduleSize);
     std::cout << "Base: " << dynamicPtrBaseAddr << std::endl;
@@ -90,6 +94,7 @@ int main() {
     std::ofstream myfile;
     myfile.open("values.txt"); // textfile to write to
 
+    // Reads and writes values from all memory addresses which are within 0 < value < 1000 range to file.
     if (myfile.is_open()) {
         for (uintptr_t i = dynamicPtrBaseAddr; dynamicPtrBaseAddr <= dynamicPtrLastAddr; i++) {
             dynamicPtrBaseAddr += 4;
