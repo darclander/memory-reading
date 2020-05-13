@@ -76,7 +76,7 @@ int main() {
 
     // Set base and last address and print them for user
     uintptr_t dynamicPtrBaseAddr = moduleBase;
-    uintptr_t dynamicPtrLastAddr = 2*(moduleBase + moduleSize);
+    uintptr_t dynamicPtrLastAddr = (moduleBase + moduleSize);
     std::cout << "Base: " << dynamicPtrBaseAddr << std::endl;
     std::cout << "Last: " << dynamicPtrLastAddr << std::endl;
 
