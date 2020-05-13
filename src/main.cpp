@@ -74,17 +74,15 @@ int main() {
     uintptr_t moduleBase = GetModuleBaseAddress(procId, L"x.exe");
     uintptr_t moduleSize = GetModuleSize(procId, L"x.exe");
 
-    // Require all access
-    HANDLE hProcess = 0;
-    hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, procId);
-
-
     // Set base and last address and print them for user
     uintptr_t dynamicPtrBaseAddr = moduleBase;
     uintptr_t dynamicPtrLastAddr = 2*(moduleBase + moduleSize);
     std::cout << "Base: " << dynamicPtrBaseAddr << std::endl;
     std::cout << "Last: " << dynamicPtrLastAddr << std::endl;
 
+    // Require all access
+    HANDLE hProcess = 0;
+    hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, procId);
 
     // Initializes values
     int number = 502;
