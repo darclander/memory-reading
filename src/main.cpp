@@ -1,71 +1,9 @@
 #include <iostream>
 #include <Windows.h>
-#include <string>
 #include <Psapi.h>
-#include <process.h>
-#include <tlhelp32.h>
-#include <vector>
-#include <process.h>
 #include <stdio.h>
-#include <tchar.h>
 #include <fstream>
-
-DWORD GetProcId(const wchar_t* procName) {
-    DWORD pid = 0;
-    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    if(hSnap != INVALID_HANDLE_VALUE) {
-        PROCESSENTRY32 procEntry;
-        procEntry.dwSize = sizeof(procEntry);
-        if(Process32First(hSnap, &procEntry)) {
-            do {
-                if(!_wcsicmp(procEntry.szExeFile, procName)) {
-                    pid = procEntry.th32ProcessID;
-                    break;
-                }
-            } while (Process32Next(hSnap, &procEntry));
-        }
-    }
-    CloseHandle(hSnap);
-    return pid;
-}
-
-uintptr_t GetModuleBaseAddress(DWORD procId, const wchar_t* modName) {
-    uintptr_t modBaseAddr = 0;
-    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | 0x10, procId);
-    if(hSnap != INVALID_HANDLE_VALUE) {
-        MODULEENTRY32 modEntry;
-        modEntry.dwSize = sizeof(modEntry);
-        if(Module32First(hSnap, &modEntry)) {
-            do {
-                if(!_wcsicmp(modEntry.szModule, modName)) {
-                    modBaseAddr = (uintptr_t)modEntry.modBaseAddr;
-                    break;
-                }
-            } while(Module32Next(hSnap, &modEntry));
-        }
-    }
-    CloseHandle(hSnap);
-    return modBaseAddr;
-}
-
-uintptr_t GetModuleSize(DWORD procId, const wchar_t* modName) {
-    uintptr_t modBaseSize = 0;
-    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | 0x10, procId);
-    if(hSnap != INVALID_HANDLE_VALUE) {
-        MODULEENTRY32 modEntry;
-        modEntry.dwSize = sizeof(modEntry);
-        if(Module32First(hSnap, &modEntry)) {
-            do {
-                if(!_wcsicmp(modEntry.szModule, modName)) {
-                    modBaseSize = (uintptr_t)modEntry.modBaseSize;
-                    break;
-                }
-            } while(Module32Next(hSnap, &modEntry));
-        }
-    }
-    CloseHandle(hSnap);
-    return modBaseSize;
-}
+#include "proc.h"
 
 int main() {
 
@@ -80,12 +18,23 @@ int main() {
     std::cout << "Base: " << dynamicPtrBaseAddr << std::endl;
     std::cout << "Last: " << dynamicPtrLastAddr << std::endl;
 
-    // Require all access
+    // Require all access and checks if hProcess fails
     HANDLE hProcess = 0;
     hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, procId);
+    if (hProcess == NULL) {
+        std::cout << GetLastError();
+    }
+
+    DWORD tid = GetProcessThreads(procId);
+
+    HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, false, tid);
+    if (hThread == NULL) {
+        std::cout << GetLastError();
+    }
 
     // Initializes values
     int number = 502;
+    std::cout << std::endl;
     std::cout << &number;
 
     int value = 0;
@@ -105,3 +54,5 @@ int main() {
     myfile.close();
     system("pause");
 }
+
+
