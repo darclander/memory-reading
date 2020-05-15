@@ -66,7 +66,6 @@ int main() {
             std::cout << dynamicPtrBaseAddr << std::endl;
         }
     }
-
     system("pause");
 }
 
