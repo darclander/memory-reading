@@ -1,6 +1,6 @@
 # Prerequisites
 *.d
-.vscode/settings.json
+.vscode/*
 
 # Compiled Object files
 *.slo
