@@ -1,6 +1,7 @@
 #include <iostream>
 #include <Windows.h>
 #include <Psapi.h>
+#include <tchar.h>
 #include <TlHelp32.h>
 #include <stdio.h>
 #include <fstream>
@@ -26,6 +27,30 @@ int main() {
     if (hProcess == NULL) {
         std::cout << GetLastError();
     }
+
+    // Should list the the modules for a process. TODO: See if we can use this to find the total value for moduleSize
+    HMODULE hMods[1024];
+    DWORD cbNeeded;
+
+    if( EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded)) {
+        for ( int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++ )
+        {
+            TCHAR szModName[MAX_PATH];
+
+            // Get the full path to the module's file.
+
+            if ( GetModuleFileNameEx( hProcess, hMods[i], szModName,
+                                      sizeof(szModName) / sizeof(TCHAR)))
+            {
+                // Print the module name and handle value.
+
+                std::cout << "ModName: " << szModName << std::endl;
+                std::cout << "Mods: " << hMods[i] << std::endl;
+            }
+        }
+    }
+
+
 
     // Initializes values
     int number = 502;
